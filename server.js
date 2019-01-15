@@ -33,7 +33,7 @@ mongoose.connect(MONGODB_URI, { useNewUrlParser: true });
 // Routes
 
 // Default home GET route
-app.get("/", function (req, res) {
+app.get("/articles", function (req, res) {
 
     db.Article.find({}).then(function (dbArticle) {
         res.json(dbArticle);
@@ -52,9 +52,16 @@ app.get("/scrape", function (req, res) {
         $("div.middle-article-block").each(function (i, element) {
             var result = {};
 
-            result.title = $(element).find("div.middle-article-headline").text();
+            result.headline = $(element).find("div.middle-article-headline").text();
+            result.summary = $(element).find("div.feature-article-summary").text();
+            result.url = "https://www.chicagobusiness.com" + $(element).find("div.middle-article-headline").find("a.omnitrack").attr("href");
+            result.photo = $(element).find("img").attr("src");
 
-            console.log(result);
+            db.Article.create(result).then(function (dbArticle) {
+                console.log(dbArticle);
+            }).catch(function (err) {
+                console.log(err);
+            })
         });
     });
     res.send("Scrape Complete");
