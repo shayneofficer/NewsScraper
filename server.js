@@ -33,8 +33,7 @@ mongoose.connect(MONGODB_URI, { useNewUrlParser: true });
 // Routes
 
 app.get("/articles", function (req, res) {
-    db.Article.find({}).then(function (dbArticle) {
-        console.log(dbArticle);
+    db.Article.find({ saved: false }).then(function (dbArticle) {
         res.json(dbArticle);
     }).catch(function (err) {
         res.json(err);
@@ -42,8 +41,19 @@ app.get("/articles", function (req, res) {
 });
 
 app.get("/saved", function (req, res) {
+    res.sendfile("./public/saved.html");
+});
+
+app.get("/articles/saved", function (req, res) {
     db.Article.find({ saved: true }).then(function (dbArticle) {
-        console.log(dbArticle);
+        res.json(dbArticle);
+    }).catch(function (err) {
+        res.json(err);
+    });
+});
+
+app.post("/articles/save/:id", function (req, res) {
+    db.Article.findOneAndUpdate({ _id: req.params.id }, { $set: { saved: true } }, { new: true }).then(function (dbArticle) {
         res.json(dbArticle);
     }).catch(function (err) {
         res.json(err);
