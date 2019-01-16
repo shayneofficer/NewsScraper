@@ -32,17 +32,23 @@ mongoose.connect(MONGODB_URI, { useNewUrlParser: true });
 
 // Routes
 
-// Default home GET route
 app.get("/articles", function (req, res) {
-
     db.Article.find({}).then(function (dbArticle) {
+        console.log(dbArticle);
         res.json(dbArticle);
     }).catch(function (err) {
         res.json(err);
     });
+});
 
-    // res.sendFile("index.html");
-})
+app.get("/saved", function (req, res) {
+    db.Article.find({ saved: true }).then(function (dbArticle) {
+        console.log(dbArticle);
+        res.json(dbArticle);
+    }).catch(function (err) {
+        res.json(err);
+    });
+});
 
 app.get("/scrape", function (req, res) {
 
@@ -66,6 +72,25 @@ app.get("/scrape", function (req, res) {
     });
     res.send("Scrape Complete");
 });
+
+
+// app.get("/articles/:id", function (req, res) {
+//     db.Article.find({ _id: req.params.id }).populate("note").then(function (dbArticle) {
+//         res.json(dbArticle);
+//     }).catch(function (err) {
+//         res.json(err);
+//     });
+// });
+
+// app.post("/articles/:id", function (req, res) {
+//     db.Note.create(req.body).then(function (dbNote) {
+//         return db.Article.findOneAndUpdate({ _id: req.params.id }, { $push: { note: dbNote._id } }, { new: true });
+//     }).then(function (dbArticle) {
+//         res.json(dbArticle);
+//     }).catch(function (err) {
+//         res.json(err);
+//     });
+// });
 
 // Start the server
 app.listen(PORT, function () {
