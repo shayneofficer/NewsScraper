@@ -1,6 +1,6 @@
 $(document).ready(function () {
 
-    function load() {
+    function getArticles() {
         $.getJSON("/articles").then(function (data) {
             $("#articles").empty();
             if (data && data.length) {
@@ -34,14 +34,14 @@ $(document).ready(function () {
         $("#notes").append(input);
 
         for (var i = 0; i < notes.length; i++) {
-            var noteCard = `<div class="card" data-id="${id}" ><div class="card-header"><h4><a class="btn btn-info delete-note">Delete Note</a></h4></div><div class="card-body">${notes[i].text}</div></div></div>`
+            var noteCard = `<div class="card" data-id="${id}"><div class="card-body">${notes[i].text}</div></div></div>`
 
             $("#notes").append(noteCard);
         }
     }
 
     function alertEmpty() {
-        var message = "<h4>Uh Oh. Looks like we don't have any new articles.</h4><div class='card-body text-center'><h4><a class='btn scrape-new'>Try Scraping New Articles</a></h4><h4><a href='/saved' class='btn'>Go to Saved Articles</a></h4></div>";
+        var message = "<h4>Uh Oh. Looks like we don't have any new articles.</h4><div class='card-body text-center'><h4><a href='/saved' class='btn'>Go to Saved Articles</a></h4></div>";
 
         $("#articles").append(message);
     }
@@ -69,18 +69,22 @@ $(document).ready(function () {
     });
 
     $(".clear").on("click", function () {
+        $("#articles").empty();
+        alertEmpty();
+
         $.ajax({
             method: "DELETE",
             url: "/articles/clear"
         }).then(function (data) {
-            $("#articles").empty();
-            alertEmpty();
+
         });
     })
 
     $(document).on("click", ".scrape-new", function () {
         $.get("/scrape").then(function (data) {
-            load();
+            console.log(data);
+            getArticles();
+            location.reload();
         });
     });
 
@@ -95,7 +99,16 @@ $(document).ready(function () {
         });
     }
 
-    load();
+    $(document).on("click", ".delete-note", function () {
+        $.ajax({
+            method: "DELETE",
+            url: "/note/delete"
+        }).then(function (data) {
+
+        });
+    })
+
+    getArticles();
 })
 
 

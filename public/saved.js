@@ -34,7 +34,7 @@ $(document).ready(function () {
         $("#notes").append(input);
 
         for (var i = 0; i < notes.length; i++) {
-            var noteCard = `<div class="card" data-id="${id}" ><div class="card-header"><h4><a class="btn btn-info delete-note">Delete Note</a></h4></div><div class="card-body">${notes[i].text}</div></div></div>`
+            var noteCard = `<div class="card" data-id="${id}"><div class="card-body">${notes[i].text}</div></div></div>`
 
             $("#notes").append(noteCard);
         }
