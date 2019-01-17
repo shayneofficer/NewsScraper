@@ -20,8 +20,28 @@ $(document).ready(function () {
         }
     }
 
+    function showNotes(notes, id) {
+
+        $("#notes").empty();
+
+        var input = "<h2 class='text-center'>Leave a Note</h2>";
+        input += "<form>";
+        input += "<input data-id='" + id + "' type='text' placeholder='note' class='note-input'></input>";
+        input += "<button type='submit' class='submit-note'>Submit</button>";
+        input += "</form>";
+
+
+        $("#notes").append(input);
+
+        for (var i = 0; i < notes.length; i++) {
+            var noteCard = `<div class="card" data-id="${id}" ><div class="card-header"><h4><a class="btn btn-info delete-note">Delete Note</a></h4></div><div class="card-body">${notes[i].text}</div></div></div>`
+
+            $("#notes").append(noteCard);
+        }
+    }
+
     function alertEmpty() {
-        var message = "<h4>Uh Oh. Looks like we don't have any new articles.</h4><div class='card-body text-center'><h4><a class='scrape-new'>Try Scraping New Articles</a></h4><h4><a href='/saved'>Go to Saved Articles</a></h4></div>";
+        var message = "<h4>Uh Oh. Looks like we don't have any new articles.</h4><div class='card-body text-center'><h4><a class='btn scrape-new'>Try Scraping New Articles</a></h4><h4><a href='/saved' class='btn'>Go to Saved Articles</a></h4></div>";
 
         $("#articles").append(message);
     }
@@ -32,13 +52,30 @@ $(document).ready(function () {
         $(this).parents(".card").remove();
 
         $.post("/articles/save/" + article.id).then(function () {
-            load();
         })
+    });
+
+    $(document).on("click", ".submit-note", function (event) {
+        event.preventDefault();
+
+        var id = $(".note-input").data().id;
+        var text = $(".note-input").val();
+        $(".note-input").val("")
+
+        $.post("/articles/" + id, { text: text }).then(function (data) {
+            getNotes(id);
+        }).catch(function (err) {
+        });
     });
 
     $(".clear").on("click", function () {
         $("#articles").empty();
         alertEmpty();
+        $.delete("/articles/clear").then(function (data) {
+            console.log(data);
+        }).catch(function (err) {
+            console.log(err);
+        })
     })
 
     $(document).on("click", ".scrape-new", function () {
@@ -47,6 +84,19 @@ $(document).ready(function () {
         });
     });
 
+    $(document).on("click", ".btn.notes", function () {
+        var article = $(this).parents(".card").data();
+        getNotes(article.id);
+    });
+
+    function getNotes(id) {
+        $.get("/articles/" + id).then(function (data) {
+            showNotes(data[0].note, id);
+        });
+    }
+
     load();
 })
+
+
 
