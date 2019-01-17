@@ -60,6 +60,14 @@ app.post("/articles/save/:id", function (req, res) {
     });
 });
 
+app.post("/articles/unsave/:id", function (req, res) {
+    db.Article.findOneAndUpdate({ _id: req.params.id }, { $set: { saved: false } }, { new: true }).then(function (dbArticle) {
+        res.json(dbArticle);
+    }).catch(function (err) {
+        res.json(err);
+    });
+});
+
 app.get("/scrape", function (req, res) {
 
     axios.get("https://www.chicagobusiness.com/").then(function (response) {
@@ -84,23 +92,23 @@ app.get("/scrape", function (req, res) {
 });
 
 
-// app.get("/articles/:id", function (req, res) {
-//     db.Article.find({ _id: req.params.id }).populate("note").then(function (dbArticle) {
-//         res.json(dbArticle);
-//     }).catch(function (err) {
-//         res.json(err);
-//     });
-// });
+app.get("/articles/:id", function (req, res) {
+    db.Article.find({ _id: req.params.id }).populate("note").then(function (dbArticle) {
+        res.json(dbArticle);
+    }).catch(function (err) {
+        res.json(err);
+    });
+});
 
-// app.post("/articles/:id", function (req, res) {
-//     db.Note.create(req.body).then(function (dbNote) {
-//         return db.Article.findOneAndUpdate({ _id: req.params.id }, { $push: { note: dbNote._id } }, { new: true });
-//     }).then(function (dbArticle) {
-//         res.json(dbArticle);
-//     }).catch(function (err) {
-//         res.json(err);
-//     });
-// });
+app.post("/articles/:id", function (req, res) {
+    db.Note.create(req.body).then(function (dbNote) {
+        return db.Article.findOneAndUpdate({ _id: req.params.id }, { $push: { note: dbNote._id } }, { new: true });
+    }).then(function (dbArticle) {
+        res.json(dbArticle);
+    }).catch(function (err) {
+        res.json(err);
+    });
+});
 
 // Start the server
 app.listen(PORT, function () {

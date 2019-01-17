@@ -17,10 +17,6 @@ var ArticleSchema = new Schema({
         trim: true,
         required: true
     },
-    photo: {
-        type: String,
-        trim: true
-    },
     saved: {
         type: Boolean,
         default: false

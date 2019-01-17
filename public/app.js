@@ -1,72 +1,52 @@
 $(document).ready(function () {
 
-    function initPage() {
-        $.getJSON("/articles?saved=false").then(function (data) {
+    function load() {
+        $.getJSON("/articles").then(function (data) {
             $("#articles").empty();
             if (data && data.length) {
-                renderArticles(data);
+                showArticles(data);
             } else {
-                renderEmpty();
+                alertEmpty();
             }
         });
     }
 
-    function renderArticles(articles) {
+    function showArticles(articles) {
         for (var i = 0; i < articles.length; i++) {
 
-            var articleCard = `<div class="card" data-id="${articles[i]._id}" ><div class="card-header"><h3><a class="article-link" target="_blank" rel="noopener noreferrer" href="${articles[i].url}">${articles[i].headline}</a><a class="btn btn-success save">Save Article</a></h3></div><div class="card-body"><div class='row'><div class='col-md-2'><img src='${articles[i].photo}' alt='article-photo' width='200'></div><div class='col-md-10'>${articles[i].summary}</div></div></div></div>`
+            var articleCard = `<div class="card" data-id="${articles[i]._id}" ><div class="card-header"><h3><a class="article-link" target="_blank" href="${articles[i].url}">${articles[i].headline}</a></h3><h4><a class="btn btn-success save">Save Article</a><a class="btn btn-info notes">Article Notes</a></h4></div><div class="card-body"><div class='row'><div>${articles[i].summary}</div></div></div></div>`
 
-            // Display the apropos information on the page
             $("#articles").append(articleCard);
         }
     }
 
-    function renderEmpty() {
-        var emptyAlert = $(
-            [
-                "<div class='alert alert-warning text-center'>",
-                "<h4>Uh Oh. Looks like we don't have any new articles.</h4>",
-                "</div>",
-                "<div class='card'>",
-                "<div class='card-header text-center'>",
-                "<h3>What Would You Like To Do?</h3>",
-                "</div>",
-                "<div class='card-body text-center'>",
-                "<h4><a class='scrape-new'>Try Scraping New Articles</a></h4>",
-                "<h4><a href='/saved'>Go to Saved Articles</a></h4>",
-                "</div>",
-                "</div>"
-            ].join("")
-        );
-        // Appending this data to the page
-        $("#articles").append(emptyAlert);
+    function alertEmpty() {
+        var message = "<h4>Uh Oh. Looks like we don't have any new articles.</h4><div class='card-body text-center'><h4><a class='scrape-new'>Try Scraping New Articles</a></h4><h4><a href='/saved'>Go to Saved Articles</a></h4></div>";
+
+        $("#articles").append(message);
     }
 
     $(document).on("click", ".btn.save", function () {
-        var articleToSave = $(this).parents(".card").data();
-        console.log(articleToSave.id);
+        var article = $(this).parents(".card").data();
 
-        // Remove card from page
         $(this).parents(".card").remove();
 
-        articleToSave.saved = true;
-        // Using a patch method to be semantic since this is an update to an existing record in our collection
-        $.post("/articles/save/" + articleToSave.id).then(function () {
-            initPage();
+        $.post("/articles/save/" + article.id).then(function () {
+            load();
         })
     });
 
     $(".clear").on("click", function () {
         $("#articles").empty();
-        renderEmpty();
+        alertEmpty();
     })
 
     $(document).on("click", ".scrape-new", function () {
         $.get("/scrape").then(function (data) {
-            initPage();
+            load();
         });
     });
 
-    initPage();
+    load();
 })
 

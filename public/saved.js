@@ -1,46 +1,45 @@
 $(document).ready(function () {
 
-    function initPage() {
+    function load() {
         $.getJSON("/articles/saved").then(function (data) {
             console.log(data);
             $("#articles").empty();
             if (data && data.length) {
-                renderArticles(data);
+                showArticles(data);
             } else {
-                renderEmpty();
+                alertEmpty();
             }
         });
     }
 
-    function renderArticles(articles) {
+    function showArticles(articles) {
         for (var i = 0; i < articles.length; i++) {
 
-            var articleCard = `<div class="card" data-id="${articles[i]._id}" ><div class="card-header"><h3><a class="article-link" target="_blank" rel="noopener noreferrer" href="${articles[i].url}">${articles[i].headline}</a><a class="btn btn-success save">Save Article</a></h3></div><div class="card-body"><div class='row'><div class='col-md-2'><img src='${articles[i].photo}' alt='article-photo' width='200'></div><div class='col-md-10'>${articles[i].summary}</div></div></div></div>`
+            var articleCard = `<div class="card" data-id="${articles[i]._id}" ><div class="card-header"><h3><a class="article-link" target="_blank" rel="noopener noreferrer" href="${articles[i].url}">${articles[i].headline}</a></h3><h4><a class="btn btn-danger delete">Delete From Saved</a><a class="btn btn-info notes">Article Notes</a></h4></div><div class="card-body"><div class='row'><div>${articles[i].summary}</div></div></div></div>`
 
-            // Display the apropos information on the page
             $("#articles").append(articleCard);
         }
     }
 
-    function renderEmpty() {
-        var emptyAlert = $(
-            [
-                "<div class='alert alert-warning text-center'>",
-                "<h4>Uh Oh. Looks like we don't have any saved articles.</h4>",
-                "</div>",
-                "<div class='card'>",
-                "<div class='card-header text-center'>",
-                "<h3>Would You Like to Browse Available Articles?</h3>",
-                "</div>",
-                "<div class='card-body text-center'>",
-                "<h4><a href='/'>Browse Articles</a></h4>",
-                "</div>",
-                "</div>"
-            ].join("")
-        );
-        // Appending this data to the page
-        $("#articles").append(emptyAlert);
+    function alertEmpty() {
+        var message = "<h4>Uh Oh. Looks like we don't have any saved articles.</h4><div class='card-body text-center'><h4><a href='/'>Browse Articles</a></h4></div>";
+
+        $("#articles").append(message);
     }
 
-    initPage();
+    $(document).on("click", ".btn.delete", function () {
+        var article = $(this).parents(".card").data();
+        $(this).parents(".card").remove();
+
+        $.post("/articles/unsave/" + article.id).then(function () {
+            load();
+        })
+    });
+
+    $(".clear").on("click", function () {
+        $("#articles").empty();
+        alertEmpty();
+    });
+
+    load();
 });
