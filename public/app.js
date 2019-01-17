@@ -69,13 +69,13 @@ $(document).ready(function () {
     });
 
     $(".clear").on("click", function () {
-        $("#articles").empty();
-        alertEmpty();
-        $.delete("/articles/clear").then(function (data) {
-            console.log(data);
-        }).catch(function (err) {
-            console.log(err);
-        })
+        $.ajax({
+            method: "DELETE",
+            url: "/articles/clear"
+        }).then(function (data) {
+            $("#articles").empty();
+            alertEmpty();
+        });
     })
 
     $(document).on("click", ".scrape-new", function () {

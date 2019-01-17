@@ -56,9 +56,14 @@ $(document).ready(function () {
     });
 
     $(".clear").on("click", function () {
-        $("#articles").empty();
-        alertEmpty();
-    });
+        $.ajax({
+            method: "DELETE",
+            url: "/articles/clear"
+        }).then(function (data) {
+            $("#articles").empty();
+            alertEmpty();
+        });
+    })
 
     $(document).on("click", ".submit-note", function (event) {
         event.preventDefault();

@@ -110,6 +110,15 @@ app.post("/articles/:id", function (req, res) {
     });
 });
 
+app.delete("/articles/clear", function (req, res) {
+    db.Article.deleteMany({}, function (err) {
+        console.log(err);
+    });
+    db.Note.deleteMany({}, function (err) {
+        console.log(err);
+    });
+})
+
 // Start the server
 app.listen(PORT, function () {
     console.log("App listening on port http://localhost:" + PORT + " !");
